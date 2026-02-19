@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AWI — Handyladen & Tech Store</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Favicon (simple AWI SVG as data URI) -->
+  <link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect rx="12" width="64" height="64" fill="%2300E5FF"/><text x="50%" y="52%" font-family="Poppins,Inter,Arial" font-size="28" fill="%230b0b0b" text-anchor="middle" font-weight="700">AWI</text></svg>'>
+
+  <style>
+    :root{
+      --bg: #0F172A;
+      --card: #0b1220;
+      --muted: #9aa4b2;
+      --accent: #00E5FF;
+      --accent-dark: #00bedf;
+      --accent-gradient: linear-gradient(90deg,#00e5ff 0%, #b94bff 100%);
+      --pink: #ff3aa6;
+      --glass: rgba(255,255,255,0.03);
+      --radius: 14px;
+      --shadow: 0 8px 30px rgba(2,6,23,0.7);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(0,229,255,0.06), transparent 10%),
+                  radial-gradient(1000px 500px at 90% 90%, rgba(185,75,255,0.04), transparent 10%),
+                  var(--bg);
+      color:#e6eef8;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+      line-height:1.3;
+    }
+
+    /* Layout */
+    .container{max-width:1200px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .logo {
+      display:flex;align-items:center;gap:12px;font-family:Poppins,Inter;color:#000;
+      background:var(--accent-gradient);padding:10px 14px;border-radius:12px;font-weight:700;
+      box-shadow:var(--shadow);transform:translateZ(0);
+    }
+    .logo svg{height:34px;width:auto;display:block}
+    nav{display:flex;gap:12px;align-items:center}
+    nav button{background:transparent;border:0;color:var(--muted);padding:8px 10px;border-radius:10px;font-weight:600}
+    nav button.active, nav button:hover{color:#fff;background:rgba(255,255,255,0.03)}
+
+    .hero{
+      display:grid;grid-template-columns:1fr 420px;gap:28px;margin-top:28px;align-items:center;
+    }
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:22px;border-radius:var(--radius);box-shadow:var(--shadow)}
+    .title{font-size:34px;font-weight:800;letter-spacing:-0.02em}
+    .lead{color:var(--muted);margin-top:8px}
+
+    .cta {margin-top:18px;display:flex;gap:12px}
+    .btn{
+      border:0;padding:12px 16px;border-radius:999px;font-weight:700;cursor:pointer;
+      background:var(--accent);color:#001;
+      box-shadow: 0 6px 18px rgba(0,229,255,0.08);
+    }
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+    .btn.gradient{
+      background:var(--accent-gradient);color:#070707;
+      box-shadow: 0 8px 28px rgba(185,75,255,0.12);
+    }
+
+    /* Shop */
+    .searchbar{display:flex;gap:12px;align-items:center}
+    .searchbar input{flex:1;padding:12px 14px;border-radius:999px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.02);color:#fff}
+    .filters{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}
+    .chip{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,0.02);color:var(--muted);cursor:pointer;border:1px solid rgba(255,255,255,0.01);font-weight:600}
+    .chip.active{background:var(--accent);color:#021;box-shadow:0 6px 18px rgba(0,229,255,0.06);}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+    .product{
+      background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02));
+      padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.02);
+      display:flex;flex-direction:column;gap:8px;
+    }
+    .thumb{height:140px;border-radius:10px;background:linear-gradient(180deg,#071124,#102035);display:flex;align-items:center;justify-content:center;color:#bcd8e6;font-weight:800;font-size:20px}
+    .price{color:var(--pink);font-weight:800}
+
+    /* Cart drawer */
+    .cart-drawer{position:fixed;right:22px;bottom:22px;width:360px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03));border-radius:16px;padding:14px;border:1px solid rgba(255,255,255,0.02)}
+    .cart-header{display:flex;justify-content:space-between;align-items:center}
+    .cart-items{max-height:260px;overflow:auto;margin-top:10px}
+
+    /* Product modal */
+    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);z-index:60;padding:20px}
+    .modal > .card{max-width:900px;width:100%;display:flex;gap:18px}
+    .modal .left{flex:1}
+    .modal .right{flex:1}
+
+    footer{margin-top:36px;color:var(--muted);font-size:13px;padding:20px 0;display:flex;justify-content:space-between;align-items:center}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .hero{grid-template-columns:1fr; padding-bottom:8px}
+      .cart-drawer{right:12px;left:12px;width:auto}
+      nav{display:none}
+    }
+
+    /* small helpers */
+    .muted{color:var(--muted);font-size:13px}
+    a.link{color:var(--accent);font-weight:700}
+    .small{font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="logo" aria-hidden="true">
+          <!-- AWI SVG mark -->
+          <svg width="34" height="34" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 6px 14px rgba(0,0,0,0.3));border-radius:8px">
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1">
+                <stop offset="0" stop-color="#00E5FF"/>
+                <stop offset="1" stop-color="#B94BFF"/>
+              </linearGradient>
+            </defs>
+            <rect rx="22" width="120" height="120" fill="url(#g1)"/>
+            <text x="50%" y="58%" text-anchor="middle" font-family="Poppins,Inter,Arial" font-weight="700" font-size="48" fill="#071124">AWI</text>
+          </svg>
+          <div style="display:flex;flex-direction:column;line-height:1">
+            <div style="font-size:16px">AWI</div>
+            <div style="font-size:11px;color:#071124;font-weight:700;margin-top:2px">Handyladen & Tech</div>
+          </div>
+        </div>
+      </div>
+
+      <nav>
+        <button data-nav="home" class="active">Home</button>
+        <button data-nav="shop">Shop</button>
+        <button data-nav="services">Services</button>
+        <button data-nav="about">Über</button>
+        <button data-nav="contact">Kontakt</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Hero -->
+      <section id="home" class="hero" style="margin-top:18px">
+        <div>
+          <div class="card">
+            <div class="title">Awi — Dein moderner Handyladen</div>
+            <div class="lead">Smartphones, Laptops, Displays, Hüllen & Reparatur. Modernes Design, schnelle Lieferung, fairer Service — geeignet für alle Altersgruppen.</div>
+
+            <div class="cta">
+              <button class="btn gradient" onclick="navigate('shop')">Shoppen</button>
+              <button class="btn ghost" onclick="navigate('services')">Reparatur buchen</button>
+            </div>
+
+            <div style="display:flex;gap:12px;margin-top:18px;align-items:center">
+              <div style="background:var(--glass);padding:10px;border-radius:10px">✔ 6 Monate Garantie auf Reparaturen</div>
+              <div style="background:var(--glass);padding:10px;border-radius:10px">✔ Versand & Abholung</div>
+            </div>
+          </div>
+        </div>
+
+        <aside>
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <div style="font-weight:800">Top-Angebot</div>
+                <div class="muted" style="margin-top:6px">iPhone 14 Pro — limitiert</div>
+              </div>
+              <div style="font-size:20px;color:var(--pink);font-weight:900">1.099€</div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <button class="btn" onclick="addToCartById('p1')">In den Warenkorb</button>
+              <button class="btn ghost" onclick="navigate('shop')">Mehr sehen</button>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <!-- Shop section -->
+      <section id="shop" style="display:none;margin-top:18px">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="display:flex;gap:12px;align-items:center">
+              <div class="searchbar">
+                <input id="searchInput" placeholder="Suche nach Produkt oder Typ..." oninput="renderProducts()" />
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center">
+              <button class="btn ghost" onclick="downloadCSV()">Produkt-CSV herunterladen</button>
+              <button class="btn" onclick="simulateCheckout()">Demo Checkout</button>
+            </div>
+          </div>
+
+          <div class="filters" id="categoryChips" style="margin-top:14px"></div>
+
+          <div class="grid" id="productGrid" style="margin-top:12px"></div>
+        </div>
+      </section>
+
+      <!-- Services -->
+      <section id="services" style="display:none;margin-top:18px">
+        <div class="card">
+          <h3 style="margin:0 0 8px 0">Reparaturen & Services</h3>
+          <p class="muted">Displaywechsel, Akkutausch, Wasserschaden-Diagnose & mehr. Buche online oder komm vorbei.</p>
+
+          <form onsubmit="event.preventDefault(); alert('Anfrage gesendet! Wir melden uns.')" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <input placeholder="Name" required />
+            <input placeholder="Telefon oder E-Mail" required />
+            <select required>
+              <option value="">Service wählen</option>
+              <option>Displaywechsel</option>
+              <option>Akkutausch</option>
+              <option>Fehlerdiagnose</option>
+              <option>Wasserschaden</option>
+            </select>
+            <textarea placeholder="Beschreibe das Problem" style="grid-column:span 2"></textarea>
+            <button class="btn gradient" style="grid-column:span 2">Anfrage senden</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- About -->
+      <section id="about" style="display:none;margin-top:18px">
+        <div class="card">
+          <h3>Über Awi</h3>
+          <p class="muted">Awi ist ein kleiner, leidenschaftlicher Handyladen für Smartphones, Laptops und Zubehör mit zuverlässigem Reparaturservice.</p>
+
+          <div style="display:flex;gap:12px;margin-top:12px">
+            <div style="flex:1;background:rgba(255,255,255,0.02);padding:12px;border-radius:10px">Sichere Zahlungen</div>
+            <div style="flex:1;background:rgba(255,255,255,0.02);padding:12px;border-radius:10px">Schnelle Lieferung</div>
+            <div style="flex:1;background:rgba(255,255,255,0.02);padding:12px;border-radius:10px">Support & Garantie</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact -->
+      <section id="contact" style="display:none;margin-top:18px">
+        <div class="card">
+          <h3>Kontakt</h3>
+          <p class="muted">Fragen? Schreib uns oder besuche unseren Shop.</p>
+          <form onsubmit="event.preventDefault(); alert('Nachricht gesendet!')">
+            <input placeholder="Name" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;background:rgba(255,255,255,0.02)" required />
+            <input placeholder="E-Mail" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;background:rgba(255,255,255,0.02)" required />
+            <textarea placeholder="Nachricht" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;background:rgba(255,255,255,0.02)" required></textarea>
+            <div style="margin-top:12px">
+              <button class="btn gradient">Nachricht senden</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Product modal (hidden) -->
+      <div id="productModal" style="display:none" class="modal" onclick="if(event.target===this) closeModal()">
+        <div class="card" role="dialog" aria-modal="true" aria-label="Produktdetails">
+          <div class="left" style="padding:18px">
+            <div id="modalThumb" class="thumb">-</div>
+          </div>
+          <div class="right" style="padding:18px">
+            <h2 id="modalTitle" style="margin:0;font-size:20px"></h2>
+            <div id="modalDesc" class="muted" style="margin-top:8px"></div>
+            <div id="modalPrice" style="margin-top:12px;font-weight:800;color:var(--pink);font-size:20px"></div>
+
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <button class="btn" onclick="modalAddToCart()">In den Warenkorb</button>
+              <button class="btn ghost" onclick="closeModal()">Schließen</button>
+            </div>
+            <div style="margin-top:10px" class="small">Verfügbarkeit: <span id="modalStock"></span></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Cart drawer -->
+    <div class="cart-drawer card" id="cartDrawer">
+      <div class="cart-header">
+        <div style="font-weight:800">Warenkorb</div>
+        <div class="muted" id="cartCount">0 Artikel</div>
+      </div>
+      <div class="cart-items" id="cartItems" style="margin-top:8px"></div>
+      <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center">
+        <div class="muted">Total:</div>
+        <div style="font-weight:900;color:var(--pink)" id="cartTotal">0€</div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button class="btn gradient" style="flex:1" onclick="simulateCheckout()">Checkout (Demo)</button>
+        <button class="btn ghost" onclick="clearCart()">Leeren</button>
+      </div>
+      <div style="margin-top:8px">
+        <small class="muted">Echte Integration: <span class="small">Stripe / PayPal (Server nötig)</span></small>
+      </div>
+    </div>
+
+    <footer>
+      <div>© <span id="year"></span> AWI — Handyladen & Tech</div>
+      <div style="display:flex;gap:12px">
+        <a href="#" class="link" onclick="showLegal('impressum')">Impressum</a>
+        <a href="#" class="link" onclick="showLegal('agb')">AGB</a>
+        <a href="#" class="link" onclick="showLegal('privacy')">Datenschutz</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Minimal JS for functionality -->
+  <script>
+    // --- Sample product data (editable) ---
+    const PRODUCTS = [
+      { id:'p1', title:'iPhone 14 Pro', category:'Smartphones', price:1099, desc:'Neu, versiegelt, 128GB', stock:6 },
+      { id:'p2', title:'Samsung Galaxy S23', category:'Smartphones', price:899, desc:'Neu, 256GB', stock:4 },
+      { id:'p3', title:'OnePlus 11', category:'Smartphones', price:699, desc:'Top-Leistung', stock:8 },
+      { id:'p4', title:'MacBook Pro 14', category:'Laptops', price:2199, desc:'M1 Pro, wie neu', stock:2 },
+      { id:'p5', title:'Dell XPS 13', category:'Laptops', price:1299, desc:'13" Ultrabook', stock:3 },
+      { id:'p6', title:'Display (iPhone 12) — Ersatz', category:'Displays', price:79, desc:'Original-Style Ersatzdisplay', stock:25 },
+      { id:'p7', title:'Handyhülle — Silikon', category:'Hüllen', price:19, desc:'Stoßfest, verschiedene Farben', stock:120 },
+      { id:'p8', title:'Powerbank 20.000mAh', category:'Zubehör', price:39, desc:'Schnellladung', stock:50 },
+      { id:'p9', title:'Refurbished iPhone 13', category:'Smartphones', price:599, desc:'Refurbished mit 12 Monaten Garantie', stock:7 },
+      { id:'p10', title:'Lenovo ThinkPad', category:'Laptops', price:899, desc:'Business Notebook', stock:5 }
+    ];
+
+    // --- App state ---
+    let cart = JSON.parse(localStorage.getItem('awi_cart') || '{}');
+    let currentModalProduct = null;
+
+    // --- Init ---
+    document.getElementById('year').textContent = new Date().getFullYear();
+    const categories = ['Alle', ...Array.from(new Set(PRODUCTS.map(p=>p.category)))];
+
+    // render category chips
+    const chipsEl = document.getElementById('categoryChips');
+    let activeCategory = 'Alle';
+    categories.forEach(c=>{
+      const btn = document.createElement('button');
+      btn.className = 'chip' + (c===activeCategory ? ' active':'');
+      btn.textContent = c;
+      btn.onclick = ()=>{activeCategory = c; document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active')); btn.classList.add('active'); renderProducts();};
+      chipsEl.appendChild(btn);
+    });
+
+    // navigation
+    function navigate(section){
+      document.querySelectorAll('main > section').forEach(s=> s.style.display='none');
+      const el = document.getElementById(section);
+      if(el) el.style.display = 'block';
+      document.querySelectorAll('nav button').forEach(b=> b.classList.remove('active'));
+      const navBtn = document.querySelector('nav button[data-nav="'+section+'"]');
+      if(navBtn) navBtn.classList.add('active');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    // product rendering
+    function renderProducts(){
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      const grid = document.getElementById('productGrid');
+      grid.innerHTML = '';
+      const filtered = PRODUCTS.filter(p=>{
+        const byCat = activeCategory === 'Alle' || p.category === activeCategory;
+        const byQ = p.title.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
+        return byCat && byQ;
+      });
+      if(filtered.length === 0){
+        grid.innerHTML = '<div style="padding:22px;color:var(--muted)">Keine Produkte gefunden.</div>';
+      } else {
+        filtered.forEach(p=>{
+          const div = document.createElement('div');
+          div.className = 'product';
+          div.innerHTML = `
+            <div class="thumb" aria-hidden="true">${p.title.split(' ')[0]}</div>
+            <div style="flex:1">
+              <div style="font-weight:700">${p.title}</div>
+              <div class="muted small">${p.desc}</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+              <div class="price">${formatPrice(p.price)}</div>
+              <div style="display:flex;gap:8px">
+                <button class="btn ghost" onclick='openModal("${p.id}")'>Ansehen</button>
+                <button class="btn" onclick='addToCartById("${p.id}")'>Kaufen</button>
+              </div>
+            </div>
+          `;
+          grid.appendChild(div);
+        });
+      }
+    }
+
+    function formatPrice(n){ return n.toLocaleString('de-DE',{style:'currency',currency:'EUR'}); }
+
+    // modal
+    function openModal(id){
+      const p = PRODUCTS.find(x=>x.id===id);
+      if(!p) return;
+      currentModalProduct = p;
+      document.getElementById('modalTitle').textContent = p.title;
+      document.getElementById('modalDesc').textContent = p.desc;
+      document.getElementById('modalPrice').textContent = formatPrice(p.price);
+      document.getElementById('modalStock').textContent = p.stock + ' Stück';
+      document.getElementById('modalThumb').textContent = p.title.split(' ')[0];
+      document.getElementById('productModal').style.display = 'flex';
+    }
+    function closeModal(){ document.getElementById('productModal').style.display='none'; currentModalProduct = null; }
+
+    function modalAddToCart(){
+      if(currentModalProduct) addToCart(currentModalProduct,1);
+      closeModal();
+    }
+
+    // cart
+    function addToCartById(id, qty=1){
+      const p = PRODUCTS.find(x=>x.id===id);
+      if(!p) return;
+      addToCart(p, qty);
+    }
+    function addToCart(product, qty=1){
+      cart[product.id] = cart[product.id] ? {...cart[product.id], qty: cart[product.id].qty + qty} : {...product, qty};
+      saveCart();
+      renderCart();
+      alert(product.title + ' wurde zum Warenkorb hinzugefügt');
+    }
+    function saveCart(){ localStorage.setItem('awi_cart', JSON.stringify(cart)); }
+    function renderCart(){
+      const itemsEl = document.getElementById('cartItems');
+      itemsEl.innerHTML = '';
+      const vals = Object.values(cart);
+      let total = 0, count=0;
+      vals.forEach(it=>{
+        total += it.qty * it.price;
+        count += it.qty;
+        const div = document.createElement('div');
+        div.style.display='flex';div.style.justifyContent='space-between';div.style.alignItems='center';
+        div.style.padding='8px 0';div.style.borderBottom='1px solid rgba(255,255,255,0.02)';
+        div.innerHTML = `<div><div style="font-weight:700">${it.title}</div><div class="muted small">${it.qty} × ${formatPrice(it.price)}</div></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button class="btn ghost" onclick='changeQty("${it.id}", -1)'>−</button>
+            <button class="btn ghost" onclick='changeQty("${it.id}", 1)'>+</button>
+            <button class="btn" style="background:#ff4d7a;color:#080808" onclick='removeItem("${it.id}")'>✕</button>
+          </div>`;
+        itemsEl.appendChild(div);
+      });
+      document.getElementById('cartTotal').textContent = formatPrice(total);
+      document.getElementById('cartCount').textContent = count + ' Artikel';
+    }
+    function changeQty(id, delta){
+      if(!cart[id]) return;
+      cart[id].qty = Math.max(1, cart[id].qty + delta);
+      saveCart(); renderCart();
+    }
+    function removeItem(id){ delete cart[id]; saveCart(); renderCart(); }
+    function clearCart(){ cart = {}; saveCart(); renderCart(); }
+
+    // CSV export (simple)
+    function downloadCSV(){
+      const headers = ['id','title','category','price','desc','stock'];
+      const rows = [headers.join(',')].concat(PRODUCTS.map(p => [p.id,p.title,p.category,p.price, `"${(p.desc||'').replace(/"/g,'""')}"`, p.stock].join(',')));
+      const csv = rows.join('\\n');
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'awi_products_sample.csv'; document.body.appendChild(a); a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 500);
+    }
+
+    // Demo checkout simulation (no real payment)
+    function simulateCheckout(){
+      const total = Object.values(cart).reduce((s,i)=> s + i.qty*i.price, 0);
+      if(total <= 0){ alert('Warenkorb ist leer.'); return; }
+      // show a friendly modal with next step instructions
+      const msg = [
+        'Demo-Checkout — Gesamt: ' + formatPrice(total),
+        '',
+        'Dies ist eine Demo: Für echten Checkout brauchst du:',
+        '- Backend-Endpoint (Server) zur Erstellung von Stripe Checkout Sessions oder PayPal Orders',
+        '- Stripe Secret Key (serverseitig) und Clientkey (frontend)',
+        '- PayPal REST-Credentials für Orders',
+        '',
+        'Möchtest du, dass ich dir ein Beispiel-Server-Skript für Stripe (Node.js/Express) erstelle?'
+      ].join('\\n');
+      alert(msg);
+    }
+
+    // Legal templates (simple)
+    function showLegal(type){
+      const templates = {
+        impressum: `AWI\\nInhaber: Dein Name\\nAdresse: Musterstr. 1, 12345 Stadt\\nE-Mail: info@awi.example\\nHandelsregister: -\\nUSt-IdNr.: -\\n`,
+        agb: `AGB (Kurzvorlage)\\n1. Vertragsabschluss\\n2. Preise & Zahlung\\n3. Lieferung\\n4. Gewährleistung & Haftung\\n(Ergänzen nach Bedarf)`,
+        privacy: `Datenschutzerklärung (Kurz)\\nWir erheben & verarbeiten personenbezogene Daten nur zur Abwicklung von Bestellungen. Weitere Hinweise und Kontakt: info@awi.example`
+      };
+      alert(templates[type] || 'Keine Vorlage vorhanden.');
+    }
+
+    // small helpers
+    function init(){
+      renderProducts();
+      renderCart();
+      navigate('home');
+    }
+
+    // ask to create stripe example? we will not prompt here; user can ask later.
+    init();
+  </script>
+</body>
+</html>
